@@ -134,7 +134,7 @@ const heroSubtitle = document.querySelector(".hero h2");
 
 const roles = [
     "Electronics & Communication Engineering Student",
-    "Softwere Developer",
+    "Software Developer",
     "Python Backend Developer",
     "Embedded Systems Enthusiast",
     "VLSI & Digital Design Enthusiast",
