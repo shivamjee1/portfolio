@@ -1,266 +1,228 @@
-/*=========================================================
-    Shivam Kumar Engineering Portfolio
-    Sprint 1 - script.js
-=========================================================*/
-
-
-/*====================================
-        MOBILE MENU
-=====================================*/
-
-const menuBtn = document.querySelector(".menu-btn");
+const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
 
-menuBtn.addEventListener("click", () => {
 
-    navLinks.classList.toggle("active");
+menuToggle.addEventListener("click", () => {
+    const isOpen = navLinks.classList.toggle("active");
 
+    menuToggle.setAttribute("aria-expanded", isOpen);
+    menuToggle.setAttribute(
+        "aria-label",
+        isOpen ? "Close navigation menu" : "Open navigation menu"
+    );
 });
 
-
-
-/*====================================
-        STICKY NAVBAR
-=====================================*/
-
-const header = document.querySelector(".header");
-
-window.addEventListener("scroll", () => {
-
-    if (window.scrollY > 40) {
-
-        header.classList.add("sticky");
-
-    }
-
-    else {
-
-        header.classList.remove("sticky");
-
-    }
-
-});
-
-
-
-/*====================================
-    ACTIVE NAVIGATION LINK
-=====================================*/
-
-const sections = document.querySelectorAll("section");
 const navItems = document.querySelectorAll(".nav-links a");
 
-window.addEventListener("scroll", () => {
-
-    let current = "";
-
-    sections.forEach(section => {
-
-        const sectionTop = section.offsetTop - 120;
-
-        if (window.scrollY >= sectionTop) {
-
-            current = section.getAttribute("id");
-
-        }
-
+navItems.forEach((item) => {
+    item.addEventListener("click", () => {
+        navLinks.classList.remove("active");
     });
-
-    navItems.forEach(link => {
-
-        link.classList.remove("active-link");
-
-        if (link.getAttribute("href") === "#" + current) {
-
-            link.classList.add("active-link");
-
-        }
-
-    });
-
 });
 
+// ==============================
+// ACTIVE NAVIGATION
+// ==============================
 
+const sections = document.querySelectorAll("main section");
 
-/*====================================
-    DASHBOARD COUNTERS
-=====================================*/
+const updateActiveNav = () => {
 
-const counters = document.querySelectorAll(".dashboard-card h2");
+    const scrollPosition = window.scrollY + 150;
 
-let counterStarted = false;
+    sections.forEach((section) => {
 
-function startCounter() {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        const sectionId = section.getAttribute("id");
 
-    if (counterStarted) return;
+        if (
+            scrollPosition >= sectionTop &&
+            scrollPosition < sectionTop + sectionHeight
+        ) {
 
-    const dashboard = document.querySelector(".dashboard");
-
-    const position = dashboard.getBoundingClientRect().top;
-
-    if (position < window.innerHeight - 100) {
-
-        counterStarted = true;
-
-        counters.forEach(counter => {
-
-            const finalText = counter.innerText;
-
-            const target = parseInt(finalText);
-
-            let count = 0;
-
-            const increment = Math.ceil(target / 60);
-
-            const timer = setInterval(() => {
-
-                count += increment;
-
-                if (count >= target) {
-
-                    counter.innerText = finalText;
-
-                    clearInterval(timer);
-
-                }
-
-                else {
-
-                    if (finalText.includes("+")) {
-
-                        counter.innerText = count + "+";
-
-                    }
-
-                    else {
-
-                        counter.innerText = count;
-
-                    }
-
-                }
-
-            }, 20);
-
-        });
-
-    }
-
-}
-
-window.addEventListener("scroll", startCounter);
-
-window.addEventListener("load", startCounter);
-
-
-
-
-/*====================================
-        SCROLL REVEAL
-=====================================*/
-
-const revealElements = document.querySelectorAll(
-
-    ".hero-content, .hero-image, .dashboard-card, .section"
-
-);
-
-const observer = new IntersectionObserver(
-
-    (entries) => {
-
-        entries.forEach(entry => {
-
-            if (entry.isIntersecting) {
-
-                entry.target.classList.add("show");
-
-            }
-
-        });
-
-    },
-
-    {
-
-        threshold: 0.15
-
-    }
-
-);
-
-revealElements.forEach(el => {
-
-    observer.observe(el);
-
-});
-
-
-
-
-/*====================================
-    SMOOTH SCROLL
-=====================================*/
-
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-
-    anchor.addEventListener("click", function (e) {
-
-        e.preventDefault();
-
-        const target = document.querySelector(
-
-            this.getAttribute("href")
-
-        );
-
-        if (target) {
-
-            target.scrollIntoView({
-
-                behavior: "smooth"
-
+            navItems.forEach((item) => {
+                item.classList.remove("active");
             });
 
+            const activeLink = document.querySelector(
+                `.nav-links a[href="#${sectionId}"]`
+            );
+
+            if (activeLink) {
+                activeLink.classList.add("active");
+            }
         }
+    });
+};
 
-        navLinks.classList.remove("active");
+window.addEventListener("scroll", updateActiveNav);
 
+updateActiveNav();
+
+// ==============================
+// BACK TO TOP
+// ==============================
+
+const backToTop = document.querySelector(".back-to-top");
+
+if (backToTop) {
+    window.addEventListener("scroll", () => {
+        if (window.scrollY > 500) {
+            backToTop.classList.add("show");
+        } else {
+            backToTop.classList.remove("show");
+        }
     });
 
-});
+    backToTop.addEventListener("click", (event) => {
+        event.preventDefault();
 
-
-
-
-/*====================================
-    FOOTER YEAR
-=====================================*/
-
-const footer = document.querySelector("footer p");
-
-if (footer) {
-
-    const year = new Date().getFullYear();
-
-    footer.innerHTML =
-
-        `© ${year} Shivam Kumar. All Rights Reserved.`;
-
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    });
 }
 
+// ==============================
+// CLOSE MOBILE MENU ON OUTSIDE CLICK
+// ==============================
 
+document.addEventListener("click", (event) => {
+    const clickedInsideNav =
+        navLinks.contains(event.target) ||
+        menuToggle.contains(event.target);
 
+    if (!clickedInsideNav) {
+        navLinks.classList.remove("active");
+    }
+});
 
-/*====================================
-    CONSOLE MESSAGE
-=====================================*/
+// ==============================
+// SCROLL REVEAL
+// ==============================
 
-console.log(
-    "%cWelcome to Shivam Kumar's Engineering Portfolio",
-    "color:#2563EB;font-size:18px;font-weight:bold;"
+const revealElements = document.querySelectorAll(
+    ".section-heading, .about-content, .skill-card, .timeline-item, .project-card, .achievement-item, .contact-wrapper"
 );
 
-console.log(
-    "Designed & Developed with ❤️"
+const revealObserver = new IntersectionObserver(
+    (entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    },
+    {
+        threshold: 0.15
+    }
 );
+
+revealElements.forEach((element) => {
+    element.classList.add("reveal");
+    revealObserver.observe(element);
+});
+
+// ==============================
+// HERO TYPING EFFECT
+// ==============================
+
+const heroSubtitle = document.querySelector(".hero h2");
+
+const roles = [
+    "Electronics & Communication Engineering Student",
+    "Softwere Developer",
+    "Python Backend Developer",
+    "Embedded Systems Enthusiast",
+    "VLSI & Digital Design Enthusiast",
+    "Hardware + Software Developer"
+];
+
+let roleIndex = 0;
+let charIndex = 0;
+let deleting = false;
+
+function typeRole() {
+    if (!heroSubtitle) return;
+
+    const currentRole = roles[roleIndex];
+
+    if (!deleting) {
+        heroSubtitle.textContent = currentRole.substring(0, charIndex + 1);
+        charIndex++;
+
+        if (charIndex >= currentRole.length) {
+            deleting = true;
+
+            // Keep the complete text visible before deleting
+            setTimeout(typeRole, 1800);
+            return;
+        }
+
+        setTimeout(typeRole, 70);
+
+    } else {
+        charIndex--;
+
+        heroSubtitle.textContent = currentRole.substring(0, charIndex);
+
+        if (charIndex <= 0) {
+            charIndex = 0;
+            deleting = false;
+            roleIndex = (roleIndex + 1) % roles.length;
+
+            // Small pause before typing next role
+            setTimeout(typeRole, 400);
+            return;
+        }
+
+        setTimeout(typeRole, 40);
+    }
+}
+
+typeRole();
+
+// ==============================
+// PROJECT FILTER
+// ==============================
+
+const filterButtons = document.querySelectorAll(".filter-btn");
+const projectCards = document.querySelectorAll(".project-card");
+
+filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+
+        const selectedFilter = button.dataset.filter;
+
+        filterButtons.forEach((btn) => {
+            btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        projectCards.forEach((card) => {
+            const category = card.dataset.category;
+            const shouldShow =
+                selectedFilter === "all" || category === selectedFilter;
+
+            if (shouldShow) {
+                card.style.display = "flex";
+
+                requestAnimationFrame(() => {
+                    card.style.opacity = "1";
+                    card.style.transform = "translateY(0)";
+                });
+            } else {
+                card.style.opacity = "0";
+                card.style.transform = "translateY(10px)";
+
+                setTimeout(() => {
+                    card.style.display = "none";
+                }, 250);
+            }
+        });
+    });
+});
